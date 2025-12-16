@@ -10,7 +10,7 @@ class Team(models.Model):
 class User(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, related_name='members')
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='members')
     is_superhero = models.BooleanField(default=False)
     
     def __str__(self):
@@ -19,23 +19,24 @@ class User(models.Model):
 class Activity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
     type = models.CharField(max_length=100)
-    duration = models.IntegerField(help_text='Duration in minutes')
+    duration = models.PositiveIntegerField(help_text='Duration in minutes')
     date = models.DateField()
     
     def __str__(self):
-        return f"{self.user.name} - {self.type} on {self.date}"
+        return f"{self.user.name} - {self.type} ({self.date})"
 
 class Workout(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    suggested_for = models.ManyToManyField(User, blank=True, related_name='suggested_workouts')
+    suggested_for = models.ManyToManyField(User, related_name='suggested_workouts', blank=True)
     
     def __str__(self):
         return self.name
 
 class Leaderboard(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='leaderboards')
-    points = models.IntegerField(default=0)
+    total_points = models.PositiveIntegerField(default=0)
+    week = models.CharField(max_length=20)
     
     def __str__(self):
-        return f"{self.team.name} - {self.points} points"
+        return f"{self.team.name} - {self.week}"
